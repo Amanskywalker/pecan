@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. install_pecan_preprocessor.sh
+. /build/install_pecan_preprocessor.sh
 
 echo "######################################################################"
 echo "PECAN"
