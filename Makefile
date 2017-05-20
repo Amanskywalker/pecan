@@ -37,9 +37,9 @@ ALL_PKGS_D := $(BASE_D) $(MODELS_D) $(MODULES_D) .doc/models/template
 all: install
 
 document: .doc/all
-install: .install/all 
+install: .install/all
 check: .check/all
-test: .test/all 
+test: .test/all
 
 ### Dependencies
 .doc/all: $(ALL_PKGS_D)
@@ -56,7 +56,7 @@ $(call depends,modules/data.atmosphere): .install/utils .install/reddyproc
 $(call depends,modules/data.land): .install/db .install/utils
 $(call depends,modules/meta.analysis): .install/utils .install/db
 $(call depends,modules/priors): .install/utils
-$(call depends,modules/assim.batch): .install/utils .install/db .install/modules/meta.analysis 
+$(call depends,modules/assim.batch): .install/utils .install/db .install/modules/meta.analysis
 $(call depends,modules/rtm): .install/modules/assim.batch
 $(call depends,models/template): .install/utils
 $(call depends,models/biocro): .install/utils .install/modules/data.atmosphere .install/modules/data.land
@@ -82,10 +82,10 @@ clean:
 	mkdir -p $(@D)
 	echo `date` > $@
 
-.install/shiny:
-	Rscript -e "if(!require('shiny')) install.packages('shiny', repos = 'http://cran.rstudio.com')"
-	mkdir -p $(@D)
-	echo `date` > $@
+#.install/shiny:
+#	Rscript -e "if(!require('shiny')) install.packages('shiny', repos = 'http://cran.rstudio.com')"
+#	mkdir -p $(@D)
+#	echo `date` > $@
 
 .install/reddyproc:
 	Rscript -e "test <- require('REddyProc'); if (!test) devtools::install_github('rforge/reddyproc', subdir = 'pkg/REddyProc')"
@@ -121,4 +121,3 @@ $(ALL_PKGS_T) $(ALL_PKGS_D): .install/roxygen2 .install/testthat
 	$(call test_R_pkg, $(subst .test/,,$@))
 	mkdir -p $(@D)
 	echo `date` > $@
-
