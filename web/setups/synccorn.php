@@ -10,12 +10,18 @@
 
 // cronjob
 
+$tempfile = tmpfile();
+
 if (file_exists ("syncflag.txt") == true){
   include 'sync.php';
+
+	$line = date("Y-m-d H:i:s") . "File found";
+}
+else
+{
+	$line = date("Y-m-d H:i:s") . "File doesn't exist";
 }
 
-$tempfile = tmpfile();
-$line = date("Y-m-d H:i:s") . "Corn Hit";
 fwrite($tempfile, $line);
 
 $configfile = fopen("syscron.log", "a+");
