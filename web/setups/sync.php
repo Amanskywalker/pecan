@@ -13,11 +13,15 @@
 $outcome = NULL;
 $status = NULL;
 
-$flagfile = fopen("syncflag.txt","r");
+$file_name =  'syncflag.txt';
+
+$flagfile = fopen($file_name,"r");
 $want_id = fgets ($flagfile);
 fclose($flagfile);
 
 $cmd = '../../scripts/load.bety.sh -r ' . $want_id;
 exec($cmd, $outcome, $status);
+
+unlink($file_name);
 
 ?>
