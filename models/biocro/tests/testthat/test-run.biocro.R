@@ -9,7 +9,11 @@ ref_mat <- mean(ref_met$Temp)
 
 # run setup
 metpath <- "data/US-Bo1"
-config <- PEcAn.settings::prepare.settings(PEcAn.settings::read.settings("data/pecan.biocro.xml"))
+settings <- PEcAn.settings::read.settings("data/pecan.biocro.xml")
+settings$database$bety <- do.call(
+  PEcAn.DB::get_postgres_envvars,
+  settings$database$bety)
+config <- PEcAn.settings::prepare.settings(settings)
 config$pft$type$genus <- "Salix"
 config$run$start.date <- as.POSIXct("2004-01-01")
 config$run$end.date <- as.POSIXct("2004-01-07")

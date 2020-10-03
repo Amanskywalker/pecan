@@ -38,7 +38,7 @@ rtm_loglike <- function(nparams, model, observed, lag.max = NULL, verbose = TRUE
 bt_check_convergence <- function(samples, threshold = 1.1, use_CI = TRUE, use_mpsrf = TRUE) {
   i <- ifelse(use_CI, 2, 1)
   gelman <- try(BayesianTools::gelmanDiagnostics(samples))
-  if (class(gelman) == 'try-error') {
+  if (inherits(gelman, "try-error")) {
     message('Error trying to calculate gelman diagnostic. Assuming no convergence')
     return(FALSE)
   }
@@ -117,13 +117,16 @@ prospect_bt_prior <- function(version, custom_prior = list()) {
 #'      - `verbose_loglike` -- Diagnostic messages in log likelihood output. Default is TRUE.
 #'
 #' See the BayesianTools sampler documentation for what can go in the `BayesianTools` settings lists.
-#' @param observed Vector of observations
+#' @param observed Vector of observations. Ignored if `loglike` is not `NULL`.
 #' @param model Function called by log-likelihood. Must be `function(params)`
-#' and return a vector equal to `length(observed)` or `nrow(observed)`.
+#' and return a vector equal to `length(observed)` or `nrow(observed)`. Ignored 
+#' if `loglike` is not `NULL`.
 #' @param prior BayesianTools prior object.
 #' @param custom_settings Nested settings list. See Details.
+#' @param loglike Custom log likelihood function. If `NULL`, use [rtm_loglike] 
+#' with provided `observed` and `model`.
 #' @export
-invert_bt <- function(observed, model, prior, custom_settings = list()) {
+invert_bt <- function(observed, model, prior, custom_settings = list(), loglike = NULL) {
 
   default_settings <- list(
     common = list(),
@@ -168,18 +171,26 @@ invert_bt <- function(observed, model, prior, custom_settings = list()) {
     # `file.create` returns FALSE if target directory doesn't exist.
     stopifnot(file.create(save_progress))
   }
-  stopifnot('prior' %in% class(prior))
+  stopifnot(inherits(prior, "prior"))
   test_samp <- prior$sampler()
   param_names <- names(test_samp)
+  if (is.null(param_names)) {
+    warning("Parameters are not named! Unable to check validity.")
+  } else {
+    if (!("residual" %in% param_names)) {
+      stop("One of the parameters must be `residual`.")
+    }
+  }
   nparams <- length(test_samp[param_names != 'residual'])
-  loglike <- rtm_loglike(
-    nparams = nparams,
-    model = model,
-    observed = observed,
-    lag.max = lag.max,
-    verbose = verbose_loglike
-  )
-
+  if (is.null(loglike)) {
+    loglike <- rtm_loglike(
+      nparams = nparams,
+      model = model,
+      observed = observed,
+      lag.max = lag.max,
+      verbose = verbose_loglike
+    )
+  }
 
   setup <- BayesianTools::createBayesianSetup(
     likelihood = loglike,
